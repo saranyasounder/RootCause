@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.Python
+*.egg-info/
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+
+# Environment / secrets (for when we add API keys later)
+.env
+
+# The Dell manual PDF — large, and not ours to redistribute
+manuals/*.pdf
+
+# Model cache (sentence-transformers downloads here, not project-specific)
+.cache/
