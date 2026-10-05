@@ -4,6 +4,7 @@ import psycopg2
 
 from retrieval import get_model, get_connection, hybrid_search
 from router import route_question
+from generation import generate_answer
 
 app = FastAPI(title="Equipment Support Copilot")
 
@@ -44,7 +45,15 @@ def ask(request: AskRequest):
 
         else:
             chunks = hybrid_search(conn, model, request.question)
-            return {"path": "semantic", "results": chunks}
+            answer = generate_answer(request.question, chunks)
+            return {
+                "path": "semantic",
+                "answer": answer,
+                "sources": [
+                    {"page_number": c["page_number"], "score": c["score"]}
+                    for c in chunks
+                ],
+            }
 
     finally:
         conn.close()
