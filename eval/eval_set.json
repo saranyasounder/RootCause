@@ -1,0 +1,82 @@
+[
+  {
+    "id": "q01",
+    "question": "What does error F-1010 mean?",
+    "category": "lookup",
+    "expected_path": "structured",
+    "expected_error_code": "F-1010",
+    "expected_equipment_id": null,
+    "relevant_pages": [],
+    "should_abstain": false
+  },
+  {
+    "id": "q02",
+    "question": "SVR-R740-01 threw error C-2001, what is going on?",
+    "category": "lookup",
+    "expected_path": "structured",
+    "expected_error_code": "C-2001",
+    "expected_equipment_id": "SVR-R740-01",
+    "relevant_pages": [],
+    "should_abstain": false
+  },
+  {
+    "id": "q03",
+    "question": "What is error Z-9999?",
+    "category": "lookup",
+    "expected_path": "structured",
+    "expected_error_code": "Z-9999",
+    "expected_equipment_id": null,
+    "relevant_pages": [],
+    "should_abstain": true
+  },
+  {
+    "id": "q04",
+    "question": "My server is showing F1010 on boot, what does that mean?",
+    "category": "ambiguous",
+    "expected_path": "structured",
+    "expected_error_code": "F-1010",
+    "expected_equipment_id": null,
+    "relevant_pages": [],
+    "should_abstain": false
+  },
+  {
+    "id": "q05",
+    "question": "How do I replace the cooling fan assembly?",
+    "category": "diagnostic",
+    "expected_path": "semantic",
+    "expected_error_code": null,
+    "expected_equipment_id": null,
+    "relevant_pages": [42, 43],
+    "should_abstain": false
+  },
+  {
+    "id": "q06",
+    "question": "What does a blinking white light on the Quick Sync module mean?",
+    "category": "diagnostic",
+    "expected_path": "semantic",
+    "expected_error_code": null,
+    "expected_equipment_id": null,
+    "relevant_pages": [13],
+    "should_abstain": false
+  },
+  {
+    "id": "q07",
+    "question": "How do I secure the NVDIMM-N battery in the drive tray?",
+    "category": "diagnostic",
+    "expected_path": "semantic",
+    "expected_error_code": null,
+    "expected_equipment_id": null,
+    "relevant_pages": [50],
+    "should_abstain": false
+  },
+  {
+    "id": "q08",
+    "question": "What is the warranty period for this server?",
+    "category": "unanswerable",
+    "expected_path": "semantic",
+    "expected_error_code": null,
+    "expected_equipment_id": null,
+    "relevant_pages": [],
+    "should_abstain": true
+  }
+]

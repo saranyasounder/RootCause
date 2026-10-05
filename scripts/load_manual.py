@@ -25,7 +25,7 @@ cur = conn.cursor()
 chunk_index = 0
 total_chunks = 0
 
-for page_num, page in enumerate(reader.pages):
+for page_num, page in enumerate(reader.pages, start = 1):
     text = page.extract_text()
     if len(text.strip()) < MIN_PAGE_CHARS:
         continue  # skip near-empty pages
