@@ -195,5 +195,125 @@
       31
     ],
     "should_abstain": false
+  },
+  {
+    "id": "q17",
+    "question": "This is not an F-1010 error, the fan is just very loud. What should I check?",
+    "category": "ambiguous",
+    "expected_path": "semantic",
+    "expected_error_code": null,
+    "expected_equipment_id": null,
+    "relevant_pages": [],
+    "should_abstain": false
+  },
+  {
+    "id": "q18",
+    "question": "what does f-1010 mean on SVR-R740-02?",
+    "category": "ambiguous",
+    "expected_path": "structured",
+    "expected_error_code": "F-1010",
+    "expected_equipment_id": "SVR-R740-02",
+    "relevant_pages": [],
+    "should_abstain": false
+  },
+  {
+    "id": "q19",
+    "question": "Tell me about SVR-R740-01",
+    "category": "ambiguous",
+    "expected_path": "semantic",
+    "expected_error_code": null,
+    "expected_equipment_id": null,
+    "relevant_pages": [],
+    "should_abstain": false
+  },
+  {
+    "id": "q20",
+    "question": "How much does a replacement power supply cost?",
+    "category": "unanswerable",
+    "expected_path": "semantic",
+    "expected_error_code": null,
+    "expected_equipment_id": null,
+    "relevant_pages": [],
+    "should_abstain": true
+  },
+  {
+    "id": "q21",
+    "question": "How do I configure a VLAN on a Cisco switch?",
+    "category": "unanswerable",
+    "expected_path": "semantic",
+    "expected_error_code": null,
+    "expected_equipment_id": null,
+    "relevant_pages": [],
+    "should_abstain": true
+  },
+  {
+    "id": "q22",
+    "question": "Which Linux distribution does Dell recommend for this server?",
+    "category": "unanswerable",
+    "expected_path": "semantic",
+    "expected_error_code": null,
+    "expected_equipment_id": null,
+    "relevant_pages": [],
+    "should_abstain": true
+  },
+  {
+    "id": "q23",
+    "question": "What does error S-3005 mean on SVR-R740-02?",
+    "category": "lookup",
+    "expected_path": "structured",
+    "expected_error_code": "S-3005",
+    "expected_equipment_id": "SVR-R740-02",
+    "relevant_pages": [],
+    "should_abstain": false
+  },
+  {
+    "id": "q24",
+    "question": "SVR-R650-01 is reporting W-4501. What is the recommended action?",
+    "category": "lookup",
+    "expected_path": "structured",
+    "expected_error_code": "W-4501",
+    "expected_equipment_id": "SVR-R650-01",
+    "relevant_pages": [],
+    "should_abstain": false
+  },
+  {
+    "id": "q25",
+    "question": "How do I fix error V-6009 on LAP-LAT5540-01?",
+    "category": "lookup",
+    "expected_path": "structured",
+    "expected_error_code": "V-6009",
+    "expected_equipment_id": "LAP-LAT5540-01",
+    "relevant_pages": [],
+    "should_abstain": false
+  },
+  {
+    "id": "q26",
+    "question": "What is error P-4017?",
+    "category": "lookup",
+    "expected_path": "structured",
+    "expected_error_code": "P-4017",
+    "expected_equipment_id": null,
+    "relevant_pages": [],
+    "should_abstain": false
+  },
+  {
+    "id": "q27",
+    "question": "What is the cause of F-1035 on LAP-LAT5540-02?",
+    "category": "lookup",
+    "expected_path": "structured",
+    "expected_error_code": "F-1035",
+    "expected_equipment_id": "LAP-LAT5540-02",
+    "relevant_pages": [],
+    "should_abstain": false
+  },
+  {
+    "id": "q28",
+    "question": "WKS-T5820-02 is showing F-1022. How severe is it?",
+    "category": "lookup",
+    "expected_path": "structured",
+    "expected_error_code": "F-1022",
+    "expected_equipment_id": "WKS-T5820-02",
+    "relevant_pages": [],
+    "should_abstain": false
   }
 ]
