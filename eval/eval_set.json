@@ -46,7 +46,12 @@
     "expected_path": "semantic",
     "expected_error_code": null,
     "expected_equipment_id": null,
-    "relevant_pages": [42, 43],
+    "relevant_pages": [
+      41,
+      42,
+      43,
+      44
+    ],
     "should_abstain": false
   },
   {
@@ -56,7 +61,9 @@
     "expected_path": "semantic",
     "expected_error_code": null,
     "expected_equipment_id": null,
-    "relevant_pages": [13],
+    "relevant_pages": [
+      13
+    ],
     "should_abstain": false
   },
   {
@@ -66,7 +73,12 @@
     "expected_path": "semantic",
     "expected_error_code": null,
     "expected_equipment_id": null,
-    "relevant_pages": [50],
+    "relevant_pages": [
+      48,
+      49,
+      50,
+      51
+    ],
     "should_abstain": false
   },
   {
@@ -78,5 +90,110 @@
     "expected_equipment_id": null,
     "relevant_pages": [],
     "should_abstain": true
+  },
+  {
+    "id": "q09",
+    "question": "How do I replace a power supply unit?",
+    "category": "diagnostic",
+    "expected_path": "semantic",
+    "expected_error_code": null,
+    "expected_equipment_id": null,
+    "relevant_pages": [
+      132,
+      133,
+      134
+    ],
+    "should_abstain": false
+  },
+  {
+    "id": "q10",
+    "question": "How do I install a memory module in the system?",
+    "category": "diagnostic",
+    "expected_path": "semantic",
+    "expected_error_code": null,
+    "expected_equipment_id": null,
+    "relevant_pages": [
+      72
+    ],
+    "should_abstain": false
+  },
+  {
+    "id": "q11",
+    "question": "The system health indicator is blinking amber. What does that mean?",
+    "category": "diagnostic",
+    "expected_path": "semantic",
+    "expected_error_code": null,
+    "expected_equipment_id": null,
+    "relevant_pages": [
+      12
+    ],
+    "should_abstain": false
+  },
+  {
+    "id": "q12",
+    "question": "How do I remove the cooling shroud?",
+    "category": "diagnostic",
+    "expected_path": "semantic",
+    "expected_error_code": null,
+    "expected_equipment_id": null,
+    "relevant_pages": [
+      40
+    ],
+    "should_abstain": false
+  },
+  {
+    "id": "q13",
+    "question": "How do I replace the system battery?",
+    "category": "diagnostic",
+    "expected_path": "semantic",
+    "expected_error_code": null,
+    "expected_equipment_id": null,
+    "relevant_pages": [
+      125,
+      126
+    ],
+    "should_abstain": false
+  },
+  {
+    "id": "q14",
+    "question": "How do I replace a failed hard drive?",
+    "category": "diagnostic",
+    "expected_path": "semantic",
+    "expected_error_code": null,
+    "expected_equipment_id": null,
+    "relevant_pages": [
+      53,
+      54,
+      55,
+      59,
+      60
+    ],
+    "should_abstain": false
+  },
+  {
+    "id": "q15",
+    "question": "How do I install an expansion card?",
+    "category": "diagnostic",
+    "expected_path": "semantic",
+    "expected_error_code": null,
+    "expected_equipment_id": null,
+    "relevant_pages": [
+      88,
+      89
+    ],
+    "should_abstain": false
+  },
+  {
+    "id": "q16",
+    "question": "What safety precautions should I follow before working inside the system?",
+    "category": "diagnostic",
+    "expected_path": "semantic",
+    "expected_error_code": null,
+    "expected_equipment_id": null,
+    "relevant_pages": [
+      30,
+      31
+    ],
+    "should_abstain": false
   }
 ]
