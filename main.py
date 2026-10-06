@@ -44,7 +44,7 @@ def ask(request: AskRequest):
             }
 
         else:
-            chunks = hybrid_search(conn, model, request.question)
+            chunks = hybrid_search(conn, model, request.question, min_page=7)
             answer = generate_answer(request.question, chunks)
             return {
                 "path": "semantic",
