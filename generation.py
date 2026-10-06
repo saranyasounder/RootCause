@@ -1,15 +1,12 @@
 import os
 from dotenv import load_dotenv
-from openai import OpenAI
+from anthropic import Anthropic
 
 load_dotenv()
 
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.environ["OPENROUTER_API_KEY"],
-)
+client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
-GENERATION_MODEL = os.environ.get("OPENROUTER_MODEL", "anthropic/claude-haiku-4.5")
+GENERATION_MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
 
 SYSTEM_PROMPT = """You are a technical support assistant for equipment maintenance.
 Answer the user's question using ONLY the provided manual excerpts below.
@@ -39,13 +36,11 @@ def generate_answer(question, chunks):
 
 Question: {question}"""
 
-    response = client.chat.completions.create(
+    response = client.messages.create(
         model=GENERATION_MODEL,
         max_tokens=500,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": user_message},
-        ],
+        system=SYSTEM_PROMPT,
+        messages=[{"role": "user", "content": user_message}],
     )
 
-    return response.choices[0].message.content
+    return "".join(b.text for b in response.content if b.type == "text")
