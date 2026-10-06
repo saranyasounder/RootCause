@@ -46,9 +46,21 @@ print("\n=== RETRIEVAL ===")
 def precision_at_k(pages, relevant):
     return sum(p in relevant for p in pages) / len(pages)
 
+def hit_at_k(pages, relevant):
+    return 1.0 if any(p in relevant for p in pages) else 0.0
+
+
+def reciprocal_rank(pages, relevant):
+    for i, p in enumerate(pages, start=1):
+        if p in relevant:
+            return 1.0 / i
+    return 0.0
+
 
 scored = [q for q in questions if q["category"] == "diagnostic" and q["relevant_pages"]]
 sem_scores, hyb_scores = [], []
+sem_hits, hyb_hits = [], []
+sem_rr, hyb_rr = [], []
 
 for q in scored:
     relevant = set(q["relevant_pages"])
@@ -57,6 +69,10 @@ for q in scored:
 
     sem_p = precision_at_k(sem_pages, relevant)
     hyb_p = precision_at_k(hyb_pages, relevant)
+    sem_hits.append(hit_at_k(sem_pages, relevant))
+    hyb_hits.append(hit_at_k(hyb_pages, relevant))
+    sem_rr.append(reciprocal_rank(sem_pages, relevant))
+    hyb_rr.append(reciprocal_rank(hyb_pages, relevant))
     sem_scores.append(sem_p)
     hyb_scores.append(hyb_p)
 
@@ -64,8 +80,11 @@ for q in scored:
     print(f"   semantic pages={sem_pages}  P@{K}={sem_p:.2f}")
     print(f"   hybrid   pages={hyb_pages}  P@{K}={hyb_p:.2f}")
 
-print(f"\nMean P@{K} over {len(scored)} questions:")
-print(f"   semantic-only: {sum(sem_scores) / len(scored):.3f}")
-print(f"   hybrid (RRF):  {sum(hyb_scores) / len(scored):.3f}")
+n = len(scored)
+print(f"\nOver {n} questions:")
+print(f"   {'metric':<10} {'semantic':>10} {'hybrid':>10}")
+print(f"   {'P@' + str(K):<10} {sum(sem_scores)/n:>10.3f} {sum(hyb_scores)/n:>10.3f}")
+print(f"   {'hit@' + str(K):<10} {sum(sem_hits)/n:>10.3f} {sum(hyb_hits)/n:>10.3f}")
+print(f"   {'MRR':<10} {sum(sem_rr)/n:>10.3f} {sum(hyb_rr)/n:>10.3f}")
 
 conn.close()
