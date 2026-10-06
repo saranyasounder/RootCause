@@ -21,17 +21,23 @@ def build_or_query(text):
     return " | ".join(words) if words else None
 
 
-def semantic_search(conn, model, query_text, top_n=10):
+def semantic_search(conn, model, query_text, top_n=10, min_page=1):
     query_embedding = model.encode(query_text)
     cur = conn.cursor()
     cur.execute(
-        "SELECT id, page_number, content FROM chunks ORDER BY embedding <=> %s LIMIT %s",
-        (query_embedding, top_n),
+        """
+        SELECT id, page_number, content
+        FROM chunks
+        WHERE page_number >= %s
+        ORDER BY embedding <=> %s
+        LIMIT %s
+        """,
+        (min_page, query_embedding, top_n),
     )
     return cur.fetchall()
 
 
-def keyword_search(conn, query_text, top_n=10):
+def keyword_search(conn, query_text, top_n=10, min_page=1):
     keyword_query_str = build_or_query(query_text)
     if keyword_query_str is None:
         return []
@@ -41,17 +47,18 @@ def keyword_search(conn, query_text, top_n=10):
         SELECT id, page_number, content
         FROM chunks
         WHERE to_tsvector('english', content) @@ to_tsquery('english', %s)
+          AND page_number >= %s
         ORDER BY ts_rank(to_tsvector('english', content), to_tsquery('english', %s)) DESC
         LIMIT %s
         """,
-        (keyword_query_str, keyword_query_str, top_n),
+        (keyword_query_str, min_page, keyword_query_str, top_n),
     )
     return cur.fetchall()
 
 
-def hybrid_search(conn, model, query_text, top_n=10, result_count=5):
-    semantic_results = semantic_search(conn, model, query_text, top_n)
-    keyword_results = keyword_search(conn, query_text, top_n)
+def hybrid_search(conn, model, query_text, top_n=10, result_count=5, min_page=1):
+    semantic_results = semantic_search(conn, model, query_text, top_n, min_page)
+    keyword_results = keyword_search(conn, query_text, top_n, min_page)
 
     scores = {}
     chunk_lookup = {}
@@ -69,5 +76,10 @@ def hybrid_search(conn, model, query_text, top_n=10, result_count=5):
     results = []
     for chunk_id, score in ranked[:result_count]:
         page_number, content = chunk_lookup[chunk_id]
-        results.append({"id": chunk_id, "page_number": page_number, "content": content, "score": score})
+        results.append({
+            "id": chunk_id,
+            "page_number": page_number,
+            "content": content,
+            "score": score,
+        })
     return results

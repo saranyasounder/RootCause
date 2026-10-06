@@ -3,6 +3,7 @@ from retrieval import get_model, get_connection, semantic_search, hybrid_search
 from router import route_question
 
 K = 5
+CONTENT_START = 7  # pages 1-6 are cover, notes and table of contents
 
 with open("eval/eval_set.json") as f:
     questions = json.load(f)
@@ -38,13 +39,14 @@ print(f"\nRouting accuracy: {path_correct}/{len(questions)} = {path_correct / le
 print(f"Extraction accuracy (structured questions): {extraction_correct}/{structured_expected}")
 
 # ---------------------------------------------------------------
-# 2. Retrieval precision@K: semantic-only vs hybrid
+# 2. Retrieval: semantic vs hybrid, with and without front matter
 # ---------------------------------------------------------------
 print("\n=== RETRIEVAL ===")
 
 
 def precision_at_k(pages, relevant):
     return sum(p in relevant for p in pages) / len(pages)
+
 
 def hit_at_k(pages, relevant):
     return 1.0 if any(p in relevant for p in pages) else 0.0
@@ -57,34 +59,42 @@ def reciprocal_rank(pages, relevant):
     return 0.0
 
 
+def get_pages(method, min_page, question):
+    if method == "semantic":
+        rows = semantic_search(conn, model, question, top_n=K, min_page=min_page)
+        return [row[1] for row in rows]
+    results = hybrid_search(conn, model, question, top_n=10, result_count=K, min_page=min_page)
+    return [r["page_number"] for r in results]
+
+
+CONFIGS = [
+    ("semantic", 1),
+    ("semantic", CONTENT_START),
+    ("hybrid", 1),
+    ("hybrid", CONTENT_START),
+]
+
 scored = [q for q in questions if q["category"] == "diagnostic" and q["relevant_pages"]]
-sem_scores, hyb_scores = [], []
-sem_hits, hyb_hits = [], []
-sem_rr, hyb_rr = [], []
+totals = {cfg: {"p": [], "hit": [], "rr": []} for cfg in CONFIGS}
 
 for q in scored:
     relevant = set(q["relevant_pages"])
-    sem_pages = [row[1] for row in semantic_search(conn, model, q["question"], top_n=K)]
-    hyb_pages = [r["page_number"] for r in hybrid_search(conn, model, q["question"], top_n=10, result_count=K)]
-
-    sem_p = precision_at_k(sem_pages, relevant)
-    hyb_p = precision_at_k(hyb_pages, relevant)
-    sem_hits.append(hit_at_k(sem_pages, relevant))
-    hyb_hits.append(hit_at_k(hyb_pages, relevant))
-    sem_rr.append(reciprocal_rank(sem_pages, relevant))
-    hyb_rr.append(reciprocal_rank(hyb_pages, relevant))
-    sem_scores.append(sem_p)
-    hyb_scores.append(hyb_p)
-
     print(f"{q['id']} relevant={sorted(relevant)}")
-    print(f"   semantic pages={sem_pages}  P@{K}={sem_p:.2f}")
-    print(f"   hybrid   pages={hyb_pages}  P@{K}={hyb_p:.2f}")
+    for cfg in CONFIGS:
+        method, min_page = cfg
+        pages = get_pages(method, min_page, q["question"])
+        totals[cfg]["p"].append(precision_at_k(pages, relevant))
+        totals[cfg]["hit"].append(hit_at_k(pages, relevant))
+        totals[cfg]["rr"].append(reciprocal_rank(pages, relevant))
+        print(f"   {method:<8} min_page={min_page}: {pages}")
 
 n = len(scored)
 print(f"\nOver {n} questions:")
-print(f"   {'metric':<10} {'semantic':>10} {'hybrid':>10}")
-print(f"   {'P@' + str(K):<10} {sum(sem_scores)/n:>10.3f} {sum(hyb_scores)/n:>10.3f}")
-print(f"   {'hit@' + str(K):<10} {sum(sem_hits)/n:>10.3f} {sum(hyb_hits)/n:>10.3f}")
-print(f"   {'MRR':<10} {sum(sem_rr)/n:>10.3f} {sum(hyb_rr)/n:>10.3f}")
+print(f"   {'config':<26} {'P@' + str(K):>7} {'hit@' + str(K):>7} {'MRR':>7}")
+for cfg in CONFIGS:
+    method, min_page = cfg
+    label = f"{method}, min_page={min_page}"
+    t = totals[cfg]
+    print(f"   {label:<26} {sum(t['p'])/n:>7.3f} {sum(t['hit'])/n:>7.3f} {sum(t['rr'])/n:>7.3f}")
 
 conn.close()
