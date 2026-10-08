@@ -1,14 +1,21 @@
+import anthropic
 from fastapi import FastAPI
 from pydantic import BaseModel
-import psycopg2
+from fastapi.middleware.cors import CORSMiddleware
 
-from retrieval import get_model, get_connection, hybrid_search
-from router import route_question
 from generation import generate_answer
+from retrieval import get_model, get_connection, hybrid_search, expand_with_neighbors
+from router import route_question
+
+MIN_PAGE = 7  # pages 1-6 are cover, notes and table of contents
 
 app = FastAPI(title="Equipment Support Copilot")
-
-# Load the embedding model once at startup, not per-request
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 model = get_model()
 
 
@@ -16,49 +23,41 @@ class AskRequest(BaseModel):
     question: str
 
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+
 @app.post("/ask")
 def ask(request: AskRequest):
     conn = get_connection()
     try:
-        routing_result = route_question(conn, request.question)
+        routed = route_question(conn, request.question)
 
-        if routing_result["path"] == "structured":
-            return {
-                "path": "structured",
-                "error_code": routing_result["error_code"],
-                "equipment_id": routing_result.get("equipment_id"),
-                "results": [
-                    {
-                        "equipment_id": row[0],
-                        "model": row[1],
-                        "equipment_type": row[2],
-                        "error_code": row[3],
-                        "description": row[4],
-                        "severity": row[5],
-                        "typical_cause": row[6],
-                        "recommended_action": row[7],
-                    }
-                    for row in routing_result["results"]
-                ],
-                "note": routing_result.get("note"),
-            }
+        if routed["path"] == "structured":
+            fields = [
+                "equipment_id", "model", "equipment_type", "error_code",
+                "error_description", "severity", "typical_cause", "recommended_action",
+                ]
+            return {**routed, "results": [dict(zip(fields, row)) for row in routed["results"]]}
 
-        else:
-            chunks = hybrid_search(conn, model, request.question, min_page=7)
+        chunks = hybrid_search(conn, model, request.question, min_page=MIN_PAGE)
+        chunks = expand_with_neighbors(conn, chunks, window=1, min_page=MIN_PAGE)
+        sources = [
+            {"page_number": c["page_number"], "score": c["score"], "is_hit": c["is_hit"]}
+            for c in chunks
+        ]
+
+        try:
             answer = generate_answer(request.question, chunks)
+        except anthropic.APIError as e:
             return {
                 "path": "semantic",
-                "answer": answer,
-                "sources": [
-                    {"page_number": c["page_number"], "score": c["score"]}
-                    for c in chunks
-                ],
+                "answer": None,
+                "error": f"Answer generation unavailable ({type(e).__name__}).",
+                "sources": sources,
             }
 
+        return {"path": "semantic", "answer": answer, "sources": sources}
     finally:
         conn.close()
-
-
-@app.get("/health")
-def health():
-    return {"status": "ok"}

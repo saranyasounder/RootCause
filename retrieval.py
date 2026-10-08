@@ -83,3 +83,39 @@ def hybrid_search(conn, model, query_text, top_n=10, result_count=5, min_page=1)
             "score": score,
         })
     return results
+
+def expand_with_neighbors(conn, results, window=1, min_page=1):
+    """For each hit, also include the chunks `window` positions before and after it.
+
+    Keeps hits in rank order, adds each hit's neighbors in document order, and
+    drops duplicates. Neighbors are marked is_hit=False.
+    """
+    cur = conn.cursor()
+    seen = set()
+    expanded = []
+
+    for hit in results:
+        cur.execute(
+            """
+            SELECT c2.id, c2.page_number, c2.content
+            FROM chunks c1
+            JOIN chunks c2
+              ON c2.document_id = c1.document_id
+             AND c2.chunk_index BETWEEN c1.chunk_index - %s AND c1.chunk_index + %s
+            WHERE c1.id = %s
+            ORDER BY c2.chunk_index
+            """,
+            (window, window, hit["id"]),
+        )
+        for chunk_id, page_number, content in cur.fetchall():
+            if chunk_id in seen or page_number < min_page:
+                continue
+            seen.add(chunk_id)
+            expanded.append({
+                "id": chunk_id,
+                "page_number": page_number,
+                "content": content,
+                "score": hit["score"],
+                "is_hit": chunk_id == hit["id"],
+            })
+    return expanded
